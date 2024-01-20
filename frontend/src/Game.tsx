@@ -44,9 +44,12 @@ export default function Game({
   // ];
 
   useEffect(() => {
-    onUpdate((_, isTurn, lastMove) => {
+    onUpdate((_, isTurn /*, lastMove*/) => {
+      // TODO update on opponent move
       if (isTurn)
-        setMessages((msgs) => msgs.concat({ outgoing: false, text: lastMove }));
+        setMessages((msgs) =>
+          msgs.concat({ outgoing: false, text: "Your turn!" })
+        );
     });
   }, []);
 

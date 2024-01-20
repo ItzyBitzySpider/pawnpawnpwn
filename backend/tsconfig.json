@@ -5,7 +5,8 @@
     "outDir": "./build",
     "allowJs": true,
     "esModuleInterop": true,
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "downlevelIteration": true
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["node_modules"]

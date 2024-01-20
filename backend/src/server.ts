@@ -7,6 +7,8 @@ import dotenv from "dotenv";
 import { Server } from "socket.io";
 import { Chess } from "chess.js";
 import "./utils/globals.js";
+import { FailedMove, interpretMove } from "./chess/engine.js";
+import { assertUnreachable } from "./utils/assertions.js";
 
 dotenv.config();
 
@@ -74,25 +76,43 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("move", (move, callback) => {
+  socket.on("move", async (move, callback) => {
     console.log(socket.id, move);
     const allowed = Math.random() < 0.7; //TODO LLM
 
-    //TODO remove artificial delay
-    setTimeout(() => {
-      if (allowed) {
-        //TODO execute parsed move from LLM
-        const availableMoves = chess.moves();
-        chess.move(
-          availableMoves[Math.floor(Math.random() * availableMoves.length)]
-        );
-        socket.rooms.forEach((roomId) => {
-          if (roomId !== socket.id)
-            io.to(roomId).emit("update", chess.fen(), socket.id, move);
-        });
-        callback("Allowed " + move);
-      } else callback("Denied");
-    }, 1000);
+    const roomIter = socket.rooms.values();
+    let roomId = "";
+    for (let room of roomIter) {
+      if (room !== socket.id) {
+        roomId = room;
+        break;
+      }
+    }
+
+    const res = await interpretMove(move, globalThis.roomFen.get(roomId));
+    if (res instanceof FailedMove) {
+      callback(res.error);
+    } else if (typeof res === "string") {
+      io.to(roomId).emit("update", res, socket.id, move);
+      callback(res);
+    } else {
+      assertUnreachable(res);
+    }
+
+    // setTimeout(() => {
+    //   if (allowed) {
+    //     //TODO execute parsed move from LLM
+    //     const availableMoves = chess.moves();
+    //     chess.move(
+    //       availableMoves[Math.floor(Math.random() * availableMoves.length)]
+    //     );
+    //     socket.rooms.forEach((roomId) => {
+    //       if (roomId !== socket.id)
+    //         io.to(roomId).emit("update", chess.fen(), socket.id, move);
+    //     });
+    //     callback("Allowed " + move);
+    //   } else
+    // }, 1000);
   });
 
   socket.on("disconnecting", () => {

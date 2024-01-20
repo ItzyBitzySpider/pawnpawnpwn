@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "react": "^18.2.0",
+    "react-chessboard": "^4.3.4",
     "react-dom": "^18.2.0",
     "semantic-ui-less": "^2.5.0",
     "semantic-ui-react": "^2.1.5"

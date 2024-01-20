@@ -1,100 +1,21 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import "./App.css";
-import { Button, Grid, Header, Icon, Input } from "semantic-ui-react";
+import Landing from "./Landing";
+import Game from "./Game";
 
 function App() {
-  const [isChoosingState, setIsChoosingState] = useState(false);
+  const [roomCode, setRoomCode] = useState<string | undefined>("");
 
-  const roomCodeRef = useRef<Input>(null);
-  const [roomCode, setRoomCode] = useState("");
-
-  const [confirmedRoomCode, setConfirmedRoomCode] = useState("");
-
-  useEffect(() => {
-    if (isChoosingState) roomCodeRef.current?.focus();
-  }, [isChoosingState]);
+  //TODO socket IO
+  const [gameStarted, setGameStarted] = useState(true);
 
   return (
     <>
-      <Grid columns={1} textAlign="center">
-        <Grid.Row>
-          <Header size="huge">Pawn Pawn Pwn</Header>
-        </Grid.Row>
-        {confirmedRoomCode ? (
-          <>
-            <Grid.Row>
-              <Header>
-                Waiting for opponent...
-                <br />
-                Room Code: {confirmedRoomCode}
-              </Header>
-            </Grid.Row>
-            <Grid.Row>
-              <Button
-                primary
-                onClick={() => {
-                  setConfirmedRoomCode("");
-                  setRoomCode("");
-                }}
-              >
-                Back to Home
-              </Button>
-            </Grid.Row>
-          </>
-        ) : (
-          <>
-            <Grid.Row>
-              <Button
-                primary
-                onClick={() => {
-                  //TODO: Socket IO
-                  setConfirmedRoomCode("ABCDEF");
-                }}
-              >
-                Create Game
-              </Button>
-            </Grid.Row>
-            <Grid.Row>
-              {isChoosingState ? (
-                <Input
-                  maxLength="6"
-                  ref={roomCodeRef}
-                  input={
-                    <input onBlur={() => setIsChoosingState(false)}></input>
-                  }
-                  placeholder="Enter Room Code"
-                  action={
-                    <Button
-                      primary
-                      onMouseDown={() => {
-                        //TODO: Socket IO
-                        if (roomCode.length == 6) {
-                          setIsChoosingState(false);
-                          setConfirmedRoomCode(roomCode);
-                        }
-                      }}
-                    >
-                      <Icon name="sign-in" />
-                    </Button>
-                  }
-                  onChange={(ev) => {
-                    ev.target.value = ev.target.value.toUpperCase();
-                    if (/^[A-Z]*$/.test(ev.target.value)) {
-                      setRoomCode(ev.target.value);
-                    } else {
-                      ev.target.value = roomCode;
-                    }
-                  }}
-                ></Input>
-              ) : (
-                <Button onClick={() => setIsChoosingState(true)} primary>
-                  Join Game
-                </Button>
-              )}
-            </Grid.Row>
-          </>
-        )}
-      </Grid>
+      {gameStarted ? (
+        <Game />
+      ) : (
+        <Landing confirmedRoomCodeState={[roomCode, setRoomCode]} />
+      )}
     </>
   );
 }

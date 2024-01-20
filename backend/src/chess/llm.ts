@@ -53,8 +53,8 @@ export async function llmInterpretPrompt(
             maxOutputTokens: 500,
         },
     });
-    
-    if ((await getTokenCount(model, prompt)) > 1000) {
+
+    if ((await getTokenCount(model, prompt)) > 500) {
         return new InvalidMove(
             "Blocked Prompt: The prompt was too long. Please try again."
         );

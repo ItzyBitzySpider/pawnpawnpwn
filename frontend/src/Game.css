@@ -7,8 +7,8 @@
 
   max-height: 80vh;
   aspect-ratio: 1 / 1;
-  border: #ac4020 2px solid;
-  border-radius: 5px;
+  border: #ac4020 4px solid;
+  border-radius: 10px;
 
   display: flex;
   flex-direction: column;
@@ -25,15 +25,15 @@
 }
 
 .chat .ui.input {
-  margin: -2px;
-  width: calc(100% + 4px);
+  margin: -4px;
+  width: calc(100% + 8px);
 }
 
 .chat .ui.input > input {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   border-color: #ac4020;
-  border: #ac4020 2px solid;
+  border: #ac4020 4px solid;
 }
 
 .chat div.ui.action.input:not([class*="left action"]) > input {

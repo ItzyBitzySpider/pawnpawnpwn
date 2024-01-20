@@ -4,4 +4,4 @@
 
 @headerLineHeight: 1.33em;
 @headerFontWeight: 400;
-@textColor: @primaryColor;
+@textColor: @secondaryColor;

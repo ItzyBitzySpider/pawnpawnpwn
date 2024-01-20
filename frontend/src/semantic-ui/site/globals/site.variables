@@ -19,6 +19,8 @@
 @grey: #4c4843;
 @red: #ac4020;
 
+@fontSize: 1.25rem;
+
 @h1: 2.25rem;
 @h2: 2rem;
 @h3: 1.75rem;

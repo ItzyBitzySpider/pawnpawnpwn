@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Grid, Header, Icon, Input } from "semantic-ui-react";
+import { createRoom, joinRoom } from "./utils/socket";
 
 export default function Landing({
   confirmedRoomCodeState,
@@ -16,6 +17,16 @@ export default function Landing({
   useEffect(() => {
     if (isChoosingState) roomCodeRef.current?.focus();
   }, [isChoosingState]);
+
+  const requestJoin = useCallback(async () => {
+    if (roomCode.length == 6) {
+      const joined = await joinRoom(roomCode);
+      if (joined) {
+        setIsChoosingState(false);
+        setConfirmedRoomCode(roomCode);
+      }
+    }
+  }, [roomCode, setConfirmedRoomCode]);
 
   return (
     <Grid columns={1} textAlign="center">
@@ -48,9 +59,8 @@ export default function Landing({
           <Grid.Row>
             <Button
               primary
-              onClick={() => {
-                //TODO: Socket IO
-                setConfirmedRoomCode("ABCDEF");
+              onClick={async () => {
+                setConfirmedRoomCode(await createRoom());
               }}
             >
               Create Game
@@ -63,17 +73,11 @@ export default function Landing({
                 ref={roomCodeRef}
                 input={<input onBlur={() => setIsChoosingState(false)}></input>}
                 placeholder="Enter Room Code"
+                onKeyDown={(event: KeyboardEvent) => {
+                  if (event.key === "Enter") requestJoin();
+                }}
                 action={
-                  <Button
-                    primary
-                    onMouseDown={() => {
-                      //TODO: Socket IO
-                      if (roomCode.length == 6) {
-                        setIsChoosingState(false);
-                        setConfirmedRoomCode(roomCode);
-                      }
-                    }}
-                  >
+                  <Button primary onMouseDown={requestJoin}>
                     <Icon name="sign-in" />
                   </Button>
                 }

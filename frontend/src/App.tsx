@@ -2,17 +2,30 @@ import { useState } from "react";
 import "./App.css";
 import Landing from "./Landing";
 import Game from "./Game";
+import { onGameStart, onUpdate } from "./utils/socket";
 
 function App() {
   const [roomCode, setRoomCode] = useState<string | undefined>("");
+  const [gameStarted, setGameStarted] = useState(false);
+  const [fen, setFen] = useState<string | undefined>();
+  const [isTurn, setIsTurn] = useState(false);
+  const [isWhite, setIsWhite] = useState(false);
 
-  //TODO socket IO
-  const [gameStarted, setGameStarted] = useState(true);
+  onGameStart((fen, isWhite) => {
+    setFen(fen);
+    setIsWhite(isWhite);
+    setIsTurn(isWhite);
+    setGameStarted(true);
+  });
+  onUpdate((fen, isTurn, lastMove) => {
+    setFen(fen);
+    setIsTurn(isTurn);
+  });
 
   return (
     <>
       {gameStarted ? (
-        <Game />
+        <Game fen={fen} isWhite={isWhite} isTurn={isTurn} />
       ) : (
         <Landing confirmedRoomCodeState={[roomCode, setRoomCode]} />
       )}

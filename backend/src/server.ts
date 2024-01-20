@@ -3,9 +3,11 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import { generateRoomCode } from "./utils/calc.js";
-import "dotenv";
+import dotenv from "dotenv";
 import { Server } from "socket.io";
 import { Chess } from "chess.js";
+
+dotenv.config();
 
 const ENVIRONMENT = process.env.ENV || "dev";
 

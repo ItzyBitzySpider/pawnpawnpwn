@@ -9,7 +9,7 @@ import {
 import { Chessboard } from "react-chessboard";
 import "./Game.css";
 import { Message } from "./types/message";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { move, onUpdate } from "./utils/socket";
 
 export default function Game({
@@ -21,6 +21,7 @@ export default function Game({
   isWhite: boolean;
   isTurn: boolean;
 }) {
+  const bottomChat = useRef<HTMLDivElement>(null);
   const [text, setText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setLoading] = useState(false);
@@ -60,6 +61,11 @@ export default function Game({
     setText("");
   }, [text]);
 
+  useEffect(
+    () => bottomChat.current?.scrollIntoView({ behavior: "smooth" }),
+    [messages]
+  );
+
   return (
     <Grid columns={2} style={{ height: "80vh", width: "80vw" }}>
       <Grid.Column>
@@ -94,6 +100,7 @@ export default function Game({
                   <div>{m.text}</div>
                 </div>
               ))}
+              <div ref={bottomChat}></div>
             </Container>
             <Input
               onKeyDown={(event: KeyboardEvent) => {

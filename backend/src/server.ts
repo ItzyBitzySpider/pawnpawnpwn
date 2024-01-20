@@ -13,7 +13,14 @@ const ENVIRONMENT = process.env.ENV || "dev";
 
 const chess = new Chess();
 
-let httpServer = createServer();
+let expressApp = express();
+if (ENVIRONMENT === "dev") {
+  expressApp.use(morgan("dev"));
+  expressApp.use(cors());
+}
+
+let httpServer = createServer(expressApp);
+
 const io = new Server(httpServer, {
   serveClient: false,
   cors:
@@ -21,12 +28,6 @@ const io = new Server(httpServer, {
       ? { origin: "*", methods: ["GET", "POST"] }
       : undefined,
 });
-
-let expressApp = express();
-if (ENVIRONMENT === "dev") {
-  expressApp.use(morgan("dev"));
-  expressApp.use(cors());
-}
 
 // Add GET /health-check express route
 expressApp.get("/health-check", (req, res) => {

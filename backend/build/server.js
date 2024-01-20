@@ -58,7 +58,6 @@ var debug_js_1 = require("./utils/debug.js");
 require("dotenv");
 var ENVIRONMENT = process.env.ENV || "dev";
 var SOCKETCLUSTER_PORT = process.env.SOCKETCLUSTER_PORT || 8000;
-var SOCKETCLUSTER_LOG_LEVEL = process.env.SOCKETCLUSTER_LOG_LEVEL || 2;
 var agOptions = {};
 if (process.env.SOCKETCLUSTER_OPTIONS) {
     var envOptions = JSON.parse(process.env.SOCKETCLUSTER_OPTIONS);

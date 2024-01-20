@@ -31,7 +31,7 @@
   "readmeFilename": "README.md",
   "scripts": {
     "build": "tsc",
-    "start": "build && node build/server.js",
+    "start": "node build/server.js",
     "start:watch": "./node_modules/nodemon/bin/nodemon.js build/server.js",
     "start:docker": "./node_modules/nodemon/bin/nodemon.js /usr/src/app/server.js",
     "client-connect": "node test/client-connect.js"

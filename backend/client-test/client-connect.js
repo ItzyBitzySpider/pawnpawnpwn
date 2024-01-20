@@ -1,7 +1,8 @@
-import { create } from '/socketcluster-client.min.js';
+
+import socketClusterClient from 'socketcluster-client';
 
 // Initiate the connection to the server
-let socket = create({ path: '/socketcluster/ABCABC'});
+let socket = socketClusterClient.create({ hostname: 'localhost', port: '8000', path: '/socketcluster/NFHHHQ'});
 
 (async () => {
   for await (let { error } of socket.listener('error')) {

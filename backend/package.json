@@ -32,6 +32,7 @@
   "scripts": {
     "start": "node server.js",
     "start:watch": "./node_modules/nodemon/bin/nodemon.js server.js",
-    "start:docker": "./node_modules/nodemon/bin/nodemon.js /usr/src/app/server.js"
+    "start:docker": "./node_modules/nodemon/bin/nodemon.js /usr/src/app/server.js",
+    "client-connect": "node client-test/client-connect.js"
   }
 }

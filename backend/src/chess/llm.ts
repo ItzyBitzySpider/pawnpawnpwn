@@ -62,14 +62,18 @@ export async function llmInterpretPrompt(
     }
     const result = await chat.sendMessage(prompt);
     const response = await result.response;
-
-    if (response.candidates[0].finishReason === FinishReason.MAX_TOKENS) {
+    console.log(response)
+    if (response.candidates && response.candidates[0].finishReason === FinishReason.MAX_TOKENS) {
         return new InvalidMove(
             "Blocked Prompt: The response returned was too long. Please try again."
         );
-    } else if (response.candidates[0].finishReason === FinishReason.SAFETY) {
+    } else if (response.promptFeedback.blockReason === BlockReason.SAFETY) {
         return new InvalidMove(
             "Blocked Prompt: The prompt was flagged as harmful. Please try again."
+        );
+    } else if (response.candidates && response.candidates[0].finishReason !== FinishReason.STOP) {
+        return new InvalidMove(
+            "Invalid Prompt: Unable to generate a response from AI. Please try again."
         );
     }
 
@@ -85,7 +89,7 @@ export async function llmInterpretPrompt(
         if (safe) {
             return parsed;
         } else {
-            return new InvalidMove(`Illegal Move detected: ${parsed}`);
+            return new InvalidMove(`Illegal Move detected: ${fen} ${parsed}`);
         }
     } else {
         assertUnreachable(parsed);

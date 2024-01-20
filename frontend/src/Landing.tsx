@@ -60,11 +60,22 @@ export default function Landing({
           <Grid.Row>
             <Button
               primary
+              onClick={() => {
+                setConfirmedRoomCode("ai");
+                joinRoom("ai");
+              }}
+            >
+              Play Stockfish
+            </Button>
+          </Grid.Row>
+          <Grid.Row>
+            <Button
+              primary
               onClick={async () => {
                 setConfirmedRoomCode(await createRoom());
               }}
             >
-              Create Game
+              Create Multiplayer Game
             </Button>
           </Grid.Row>
           <Grid.Row>
@@ -93,7 +104,7 @@ export default function Landing({
               ></Input>
             ) : (
               <Button onClick={() => setIsChoosingState(true)} primary>
-                Join Game
+                Join Multiplayer Game
               </Button>
             )}
           </Grid.Row>

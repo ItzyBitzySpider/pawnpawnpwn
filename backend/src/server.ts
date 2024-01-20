@@ -1,21 +1,16 @@
-import http from "http";
+import { createServer } from "http";
 import eetase from "eetase";
 import socketClusterServer from "socketcluster-server";
 import express from "express";
 import serveStatic from "serve-static";
 import path from "path";
 import morgan from "morgan";
-import { fileURLToPath } from "url";
 import { generateRoomCode } from "./utils/calc.js";
 import { debugServerLogs } from "./utils/debug.js";
 import "dotenv";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const ENVIRONMENT = process.env.ENV || "dev";
 const SOCKETCLUSTER_PORT = process.env.SOCKETCLUSTER_PORT || 8000;
-const SOCKETCLUSTER_LOG_LEVEL = process.env.SOCKETCLUSTER_LOG_LEVEL || 2;
 
 let agOptions = {};
 
@@ -24,7 +19,7 @@ if (process.env.SOCKETCLUSTER_OPTIONS) {
     Object.assign(agOptions, envOptions);
 }
 
-let httpServer = eetase(http.createServer());
+let httpServer = eetase(createServer());
 
 let expressApp = express();
 if (ENVIRONMENT === "dev") {

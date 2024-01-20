@@ -30,9 +30,14 @@
   ],
   "readmeFilename": "README.md",
   "scripts": {
-    "start": "node server.js",
-    "start:watch": "./node_modules/nodemon/bin/nodemon.js server.js",
+    "build": "tsc",
+    "start": "build && node build/server.js",
+    "start:watch": "./node_modules/nodemon/bin/nodemon.js build/server.js",
     "start:docker": "./node_modules/nodemon/bin/nodemon.js /usr/src/app/server.js",
-    "client-connect": "node client-test/client-connect.js"
+    "client-connect": "node build/client-test/client-connect.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "typescript": "^5.3.3"
   }
 }

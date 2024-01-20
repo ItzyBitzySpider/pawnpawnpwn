@@ -2,7 +2,7 @@ import { createServer } from "http";
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
-import { generateRoomCode, processGameover } from "./utils/calc.js";
+import { generateRoomCode, processGameover, swapTurn } from "./utils/calc.js";
 import dotenv from "dotenv";
 import { Server } from "socket.io";
 import { Chess } from "chess.js";
@@ -143,26 +143,30 @@ io.on("connection", (socket) => {
     //   callback("Allowed " + move);
     // } else callback("Denied");
 
-    const res = await interpretMove(move, globalThis.roomFen.get(roomId));
+    const res = await interpretMove(
+      move,
+      globalThis.roomFen.get(roomId === "ai" ? socket.id : roomId)
+    );
     if (res instanceof FailedMove) {
       callback(res.error);
     } else if (res instanceof SuccessfulMove) {
+      res.fen = swapTurn(res.fen);
       io.to(roomId === "ai" ? socket.id : roomId).emit(
         "update",
         res.fen,
         socket.id,
         res.move.toString()
       );
-      globalThis.roomFen.set(roomId, res.fen);
+      globalThis.roomFen.set(roomId === "ai" ? socket.id : roomId, res.fen);
       callback(res.move.toString());
 
-      processGameover(
+      const gameover = processGameover(
         new Chess(res.fen),
         io,
         roomId === "ai" ? socket.id : roomId
       );
 
-      if (roomId === "ai") {
+      if (!gameover && roomId === "ai") {
         fetch("http://localhost:8080/stockfish", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

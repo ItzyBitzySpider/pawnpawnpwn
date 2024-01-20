@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Grid, Header, Icon, Input } from "semantic-ui-react";
 import { createRoom, joinRoom, resetRoom } from "./utils/socket";
+import imgUrl from "./assets/logo.svg"
 
 export default function Landing({
   confirmedRoomCodeState,
@@ -31,7 +32,7 @@ export default function Landing({
   return (
     <Grid columns={1} textAlign="center">
       <Grid.Row>
-        <Header size="huge">Pawn Pawn Pwn</Header>
+        <Header size="huge"><img src={imgUrl} style={{ width: "300px" }}></img></Header>
       </Grid.Row>
       {confirmedRoomCode ? (
         <>

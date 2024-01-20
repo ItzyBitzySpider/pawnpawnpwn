@@ -1,0 +1,90 @@
+.ui.grid > div.column {
+  max-height: 80vh;
+}
+
+.ui.container.chat {
+  width: 100%;
+
+  max-height: 80vh;
+  aspect-ratio: 1 / 1;
+  border: #ac4020 2px solid;
+  border-radius: 5px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.chat > .ui.container {
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+}
+
+.chat > .ui.container::-webkit-scrollbar {
+  display: none;
+}
+
+.chat .ui.input {
+  margin: -2px;
+  width: calc(100% + 4px);
+}
+
+.chat .ui.input > input {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-color: #ac4020;
+  border: #ac4020 2px solid;
+}
+
+.chat div.ui.action.input:not([class*="left action"]) > input {
+  border-right-color: #ac4020 !important;
+}
+
+.chat .ui.input > input:focus {
+  border-color: #ac4020;
+}
+
+.chat .ui.primary.button {
+  background-color: #ac4020;
+  box-shadow: none !important;
+}
+.chat .ui.primary.button:hover {
+  background-color: #df7353 !important;
+  box-shadow: none !important;
+}
+.chat .ui.primary.button:active {
+  background-color: #ac4020;
+  box-shadow: none !important;
+}
+.chat .ui.primary.button:focus {
+  background-color: #ac4020;
+  box-shadow: none !important;
+}
+
+div.message {
+  margin: 5px;
+  width: 100%;
+  height: fit-content;
+  background-color: transparent;
+  display: flex;
+  padding: 0;
+}
+
+div.message.outgoing {
+  justify-content: end;
+}
+
+div.message > div {
+  width: 75%;
+  margin-left: 0;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+div.message.outgoing > div {
+  background-color: #ac4020;
+}
+
+div.message.incoming > div {
+  background-color: #4c4843;
+}

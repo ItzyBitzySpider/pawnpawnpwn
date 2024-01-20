@@ -1,0 +1,7 @@
+/*******************************
+    User Variable Overrides
+*******************************/
+
+@headerLineHeight: 1.33em;
+@headerFontWeight: 400;
+@textColor: @primaryColor;

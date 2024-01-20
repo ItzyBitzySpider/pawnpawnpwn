@@ -1,0 +1,16 @@
+/*******************************
+    User Variable Overrides
+*******************************/
+
+@background: transparent;
+
+@focusColor: @textColor;
+
+@borderWidth: 2px;
+@borderColor: @primaryColor;
+@border: @borderWidth solid @borderColor;
+
+@placeholderColor: @grey;
+@placeholderFocusColor: @grey;
+
+@focusBorderColor: @primaryColor;

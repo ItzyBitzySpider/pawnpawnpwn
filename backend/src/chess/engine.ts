@@ -70,11 +70,11 @@ class SuccessfulMove {
 }
 
 type Move = InvalidMove | NormalMove | PromotionMove;
-
 // const FEN = "rnbqkb1r/1p2ppp1/3p4/p2n3p/3P4/3B1N2/PPP2PPP/RNBQK2R w KQkq - 0 7";
-const chess = new Chess();
 
-function movePiece(move: NormalMove): SuccessfulMove | FailedMove {
+
+function movePiece(move: NormalMove, fen: string): SuccessfulMove | FailedMove {
+  const chess = new Chess(fen);
   const { square1, square2 } = move;
   const piece = chess.remove(square1);
   if (!piece) {
@@ -90,7 +90,8 @@ function movePiece(move: NormalMove): SuccessfulMove | FailedMove {
   }
 }
 
-function promotePiece(move: PromotionMove): SuccessfulMove | FailedMove {
+function promotePiece(move: PromotionMove, fen: string): SuccessfulMove | FailedMove {
+  const chess = new Chess(fen);
   const { square1, square2, piece } = move;
   const pawn = chess.remove(square1);
   if (!pawn) {
@@ -113,10 +114,10 @@ export async function interpretMove(
   const move = await llmInterpretPrompt(prompt, fen);
   if (move instanceof NormalMove) {
     console.log('return normal move')
-    return movePiece(move);
+    return movePiece(move, fen);
   } else if (move instanceof PromotionMove) {
     console.log('return promotion move')
-    return promotePiece(move);
+    return promotePiece(move, fen);
   } else if (move instanceof InvalidMove) {
     console.log('return failed move')
     return new FailedMove(move.prompt);

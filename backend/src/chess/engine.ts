@@ -53,7 +53,7 @@ const chess = new Chess();
 function movePiece(square1, square2): string | FailedMove {
   const piece = chess.remove(square1);
   if (!piece) {
-    return new FailedMove(`No piece found at ${square1}`);
+    return new FailedMove(`Tried to move piece at ${square1} to ${square2} but there was no piece found at ${square1}`);
   }
   chess.put(piece, square2);
   const validate = validateFen(chess.fen());
@@ -68,7 +68,7 @@ function movePiece(square1, square2): string | FailedMove {
 function promotePiece(square1, square2, piece): string | FailedMove {
   const pawn = chess.remove(square1);
   if (!pawn) {
-    return new FailedMove(`No piece found at ${square1}`);
+    return new FailedMove(`Tried to promote piece at ${square1}, but there was no piece found at ${square1}`);
   }
   chess.put({ type: piece, color: pawn.color }, square2);
   const validate = validateFen(chess.fen());

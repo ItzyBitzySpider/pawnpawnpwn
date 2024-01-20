@@ -17,8 +17,8 @@ globalThis.roomFen = new Map();
 
 const ENVIRONMENT = process.env.ENV || "dev";
 
-const START_FEN =
-  "rnbqkbnr/ppppp2p/5p2/6p1/8/4P1P1/PPPP1P1P/RNBQKBNR w KQkq g6 0 3"; //new Chess().fen();
+const START_FEN = new Chess().fen();
+// "rnbqkbnr/ppppp2p/5p2/6p1/8/4P1P1/PPPP1P1P/RNBQKBNR w KQkq g6 0 3";
 
 const engine = stockfish();
 engine.onmessage = function (msg) {

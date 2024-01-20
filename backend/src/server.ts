@@ -9,7 +9,13 @@ import { Server } from "socket.io";
 const ENVIRONMENT = process.env.ENV || "dev";
 
 let httpServer = createServer();
-const io = new Server(httpServer, { serveClient: false });
+const io = new Server(httpServer, {
+  serveClient: false,
+  cors:
+    ENVIRONMENT === "dev"
+      ? { origin: "*", methods: ["GET", "POST"] }
+      : undefined,
+});
 
 let expressApp = express();
 if (ENVIRONMENT === "dev") {
@@ -58,13 +64,12 @@ io.on("connection", (socket) => {
   socket.on("move", (move) => {
     console.log(socket.id, move);
     socket.rooms.forEach((roomId) =>
-      io
-        .to(roomId)
-        .emit(
-          "update",
-          "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-          socket.id
-        )
+      io.to(roomId).emit(
+        "update",
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        socket.id,
+        null //TODO winner
+      )
     );
   });
 

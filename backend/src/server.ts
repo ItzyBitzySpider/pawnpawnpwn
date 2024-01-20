@@ -78,18 +78,21 @@ io.on("connection", (socket) => {
     console.log(socket.id, move);
     const allowed = Math.random() < 0.7; //TODO LLM
 
-    if (allowed) {
-      //TODO execute parsed move from LLM
-      const availableMoves = chess.moves();
-      chess.move(
-        availableMoves[Math.floor(Math.random() * availableMoves.length)]
-      );
-      socket.rooms.forEach((roomId) => {
-        if (roomId !== socket.id)
-          io.to(roomId).emit("update", chess.fen(), socket.id, move);
-      });
-      callback("Allowed " + move);
-    } else callback("Denied");
+    //TODO remove artificial delay
+    setTimeout(() => {
+      if (allowed) {
+        //TODO execute parsed move from LLM
+        const availableMoves = chess.moves();
+        chess.move(
+          availableMoves[Math.floor(Math.random() * availableMoves.length)]
+        );
+        socket.rooms.forEach((roomId) => {
+          if (roomId !== socket.id)
+            io.to(roomId).emit("update", chess.fen(), socket.id, move);
+        });
+        callback("Allowed " + move);
+      } else callback("Denied");
+    }, 1000);
   });
 
   socket.on("disconnecting", () => {

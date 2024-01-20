@@ -48,7 +48,7 @@ expressApp.get("/create-room", (req, res) => {
     // SocketCluster/WebSocket connection handling loop.
     (async () => {
         for await (let { socket } of agServer.listener("connection")) {
-            // Handle socket connection.
+            console.log(socket.id + " connected to room " + roomCode);
         }
     })();
 

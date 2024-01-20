@@ -35,7 +35,7 @@ export default function Game({
   // ];
 
   useEffect(() => {
-    onUpdate((fen, isTurn, lastMove) => {
+    onUpdate((_, isTurn, lastMove) => {
       if (isTurn)
         setMessages((msgs) => msgs.concat({ outgoing: false, text: lastMove }));
     });

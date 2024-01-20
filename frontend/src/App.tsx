@@ -18,7 +18,7 @@ function App() {
       setIsTurn(isWhite);
       setGameStarted(true);
     });
-    onUpdate((fen, isTurn, lastMove) => {
+    onUpdate((fen, isTurn) => {
       setFen(fen);
       setIsTurn(isTurn);
     });

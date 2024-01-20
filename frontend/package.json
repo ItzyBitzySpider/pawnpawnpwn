@@ -10,11 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/socketcluster-client": "^19.1.0",
     "react": "^18.2.0",
     "react-chessboard": "^4.3.4",
     "react-dom": "^18.2.0",
     "semantic-ui-less": "^2.5.0",
-    "semantic-ui-react": "^2.1.5"
+    "semantic-ui-react": "^2.1.5",
+    "socket.io-client": "^4.7.4"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^5.1.0",

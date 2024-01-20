@@ -1,50 +1,55 @@
 import { Button, Container, Grid, Icon, Input } from "semantic-ui-react";
-import { useEffect, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import "./Game.css";
 import { Message } from "./types/message";
+import { useCallback, useState } from "react";
 
-export default function Game() {
-  const [fen, setFen] = useState(
-    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-  );
+export default function Game({
+  fen,
+  isWhite,
+  isTurn,
+}: {
+  fen?: string;
+  isWhite: boolean;
+  isTurn: boolean;
+}) {
+  const [text, setText] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
 
-  useEffect(() => {
-    setInterval(() => {
-      const a = Date.now() % 3;
+  // const messages: Message[] = [
+  //   { outgoing: true, text: "Knight to E5" },
+  //   { outgoing: false, text: "Moving knight from A5 to E5" },
+  //   {
+  //     outgoing: true,
+  //     text: "Knight to E5 and move all pawns forward. This is a very illegal move",
+  //   },
+  //   { outgoing: false, text: "Move not allowed! Try again!" },
+  //   {
+  //     outgoing: true,
+  //     text: "Knight to E5 and move all pawns forward. This move is legal",
+  //   },
+  //   { outgoing: false, text: "Moving knight to E5 and move all pawns forward" },
+  //   { outgoing: true, text: "Win the game" },
+  //   { outgoing: false, text: "Move not allowed! Try again!" },
+  // ];
 
-      if (a == 0)
-        setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-      else if (a == 1)
-        setFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
-      else
-        setFen(
-          "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"
-        );
-    }, 2813);
-  }, []);
-
-  const messages: Message[] = [
-    { outgoing: true, text: "Knight to E5" },
-    { outgoing: false, text: "Moving knight from A5 to E5" },
-    {
-      outgoing: true,
-      text: "Knight to E5 and move all pawns forward. This is a very illegal move",
-    },
-    { outgoing: false, text: "Move not allowed! Try again!" },
-    {
-      outgoing: true,
-      text: "Knight to E5 and move all pawns forward. This move is legal",
-    },
-    { outgoing: false, text: "Moving knight to E5 and move all pawns forward" },
-    { outgoing: true, text: "Win the game" },
-    { outgoing: false, text: "Move not allowed! Try again!" },
-  ];
+  const sendMessage = useCallback(() => {
+    if (text.trim().length === 0) return;
+    setMessages((msgs) => [...msgs, { outgoing: true, text }]);
+    setText("");
+  }, [text]);
 
   return (
     <Grid columns={2} style={{ height: "80vh", width: "80vw" }}>
       <Grid.Column>
-        <Chessboard position={fen} />
+        <Chessboard
+          position={fen}
+          areArrowsAllowed={false}
+          arePiecesDraggable={false}
+          boardOrientation={isWhite ? "white" : "black"}
+          customLightSquareStyle={{ backgroundColor: "#CCC5B9" }}
+          customDarkSquareStyle={{ backgroundColor: "#4C4843" }}
+        />
       </Grid.Column>
       <Grid.Column>
         <div>
@@ -58,8 +63,9 @@ export default function Game() {
               }}
             >
               <Container style={{ flex: 1 }} />
-              {messages.map((m) => (
+              {messages.map((m, idx) => (
                 <div
+                  key={idx}
                   className={
                     "message " + (m.outgoing ? "outgoing" : "incoming")
                   }
@@ -69,11 +75,17 @@ export default function Game() {
               ))}
             </Container>
             <Input
+              onKeyDown={(event: KeyboardEvent) => {
+                if (event.key === "Enter") sendMessage();
+              }}
+              value={text}
+              onChange={(t) => setText(t.target.value)}
               action={
-                <Button primary>
+                <Button primary onClick={sendMessage}>
                   <Icon name="send" />
                 </Button>
               }
+              disabled={!isTurn}
             />
           </Container>
         </div>

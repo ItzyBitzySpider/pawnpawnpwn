@@ -15,6 +15,12 @@ let socket = socketClusterClient.create({
     path: "/socketcluster/" + roomCode,
 });
 
+let socket2 = socketClusterClient.create({
+    hostname: "localhost",
+    port: "8080",
+    path: "/socketcluster/" + roomCode,
+});
+
 (async () => {
     for await (let { error } of socket.listener("error")) {
         console.error(error);
@@ -23,6 +29,18 @@ let socket = socketClusterClient.create({
 
 (async () => {
     for await (let event of socket.listener("connect")) {
+        console.log("Socket is connected");
+    }
+})();
+
+(async () => {
+    for await (let { error } of socket2.listener("error")) {
+        console.error(error);
+    }
+})();
+
+(async () => {
+    for await (let event of socket2.listener("connect")) {
         console.log("Socket is connected");
     }
 })();

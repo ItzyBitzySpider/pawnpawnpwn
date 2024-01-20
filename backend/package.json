@@ -10,6 +10,8 @@
     }
   ],
   "dependencies": {
+    "@google/generative-ai": "^0.1.3",
+    "chess.js": "^1.0.0-beta.7",
     "dotenv": "^16.3.2",
     "eetase": "^7.0.0",
     "express": "^4.16.3",
@@ -31,10 +33,12 @@
   "readmeFilename": "README.md",
   "scripts": {
     "build": "tsc",
+    "dev": "tsc && node build/server.js",
     "start": "node build/server.js",
     "start:watch": "./node_modules/nodemon/bin/nodemon.js build/server.js",
-    "start:docker": "./node_modules/nodemon/bin/nodemon.js /usr/src/app/server.js",
-    "client-connect": "node test/client-connect.js"
+    "client-connect": "node test/client-connect.js",
+    "llm": "node test/llm.js",
+    "chess": "node test/chess.js",
   },
   "devDependencies": {
     "@types/node": "^20.11.5",

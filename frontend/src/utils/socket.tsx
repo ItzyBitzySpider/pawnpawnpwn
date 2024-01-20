@@ -1,10 +1,8 @@
 import { io } from "socket.io-client";
 
-const socket = io(
-  window.location.hostname.includes("localhost")
-    ? "http://localhost:8000"
-    : `${window.location.hostname}/api`
-);
+const socket = window.location.hostname.includes("localhost")
+  ? io("http://localhost:8000")
+  : io(window.location.hostname, { path: "api/" });
 
 socket.on("connect", () => console.log("Connected to socket.io server"));
 

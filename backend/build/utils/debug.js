@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -42,15 +41,13 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
     function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.debugServerLogs = void 0;
 function colorText(message, color) {
     if (color) {
         return "\u001B[".concat(color, "m").concat(message, "\u001B[0m");
     }
     return message;
 }
-function debugServerLogs(logLevel, agServer) {
+export function debugServerLogs(logLevel, agServer) {
     var _this = this;
     if (logLevel >= 1) {
         (function () { return __awaiter(_this, void 0, void 0, function () {
@@ -140,4 +137,3 @@ function debugServerLogs(logLevel, agServer) {
         }); })();
     }
 }
-exports.debugServerLogs = debugServerLogs;

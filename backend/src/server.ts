@@ -25,7 +25,6 @@ let expressApp = express();
 if (ENVIRONMENT === "dev") {
     expressApp.use(morgan("dev"));
 }
-expressApp.use(serveStatic(path.resolve(__dirname, "public")));
 
 // Add GET /health-check express route
 expressApp.get("/health-check", (req, res) => {

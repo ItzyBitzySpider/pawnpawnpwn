@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -42,20 +41,14 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
     function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var http_1 = require("http");
-var eetase_1 = __importDefault(require("eetase"));
-var socketcluster_server_1 = __importDefault(require("socketcluster-server"));
-var express_1 = __importDefault(require("express"));
-var serve_static_1 = __importDefault(require("serve-static"));
-var path_1 = __importDefault(require("path"));
-var morgan_1 = __importDefault(require("morgan"));
-var calc_js_1 = require("./utils/calc.js");
-var debug_js_1 = require("./utils/debug.js");
-require("dotenv");
+import { createServer } from "http";
+import eetase from "eetase";
+import socketClusterServer from "socketcluster-server";
+import express from "express";
+import morgan from "morgan";
+import { generateRoomCode } from "./utils/calc.js";
+import { debugServerLogs } from "./utils/debug.js";
+import "dotenv";
 var ENVIRONMENT = process.env.ENV || "dev";
 var SOCKETCLUSTER_PORT = process.env.SOCKETCLUSTER_PORT || 8000;
 var agOptions = {};
@@ -63,21 +56,20 @@ if (process.env.SOCKETCLUSTER_OPTIONS) {
     var envOptions = JSON.parse(process.env.SOCKETCLUSTER_OPTIONS);
     Object.assign(agOptions, envOptions);
 }
-var httpServer = (0, eetase_1.default)((0, http_1.createServer)());
-var expressApp = (0, express_1.default)();
+var httpServer = eetase(createServer());
+var expressApp = express();
 if (ENVIRONMENT === "dev") {
-    expressApp.use((0, morgan_1.default)("dev"));
+    expressApp.use(morgan("dev"));
 }
-expressApp.use((0, serve_static_1.default)(path_1.default.resolve(__dirname, "public")));
 // Add GET /health-check express route
 expressApp.get("/health-check", function (req, res) {
     res.status(200).send("OK");
 });
 // create-room express route
 expressApp.get("/create-room", function (req, res) {
-    var roomCode = (0, calc_js_1.generateRoomCode)();
+    var roomCode = generateRoomCode();
     console.log(roomCode);
-    var agServer = socketcluster_server_1.default.attach(httpServer, {
+    var agServer = socketClusterServer.attach(httpServer, {
         path: "/socketcluster/" + roomCode,
     });
     // SocketCluster/WebSocket connection handling loop.
@@ -122,7 +114,7 @@ expressApp.get("/create-room", function (req, res) {
             }
         });
     }); })();
-    (0, debug_js_1.debugServerLogs)(2, agServer);
+    debugServerLogs(2, agServer);
     res.status(200).json({ roomCode: roomCode });
 });
 // HTTP request handling loop.

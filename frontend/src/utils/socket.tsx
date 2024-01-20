@@ -18,6 +18,10 @@ export async function joinRoom(roomId: string) {
   return response as boolean;
 }
 
+export function resetRoom() {
+  socket.emit("leave");
+}
+
 export async function move(move: string) {
   return (await socket.emitWithAck("move", move)) as string;
 }

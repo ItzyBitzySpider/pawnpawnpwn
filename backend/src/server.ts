@@ -6,11 +6,15 @@ import { generateRoomCode } from "./utils/calc.js";
 import dotenv from "dotenv";
 import { Server } from "socket.io";
 import { Chess } from "chess.js";
+import "./utils/globals.js";
 
 dotenv.config();
 
+globalThis.roomFen = new Map();
+
 const ENVIRONMENT = process.env.ENV || "dev";
 
+const START_FEN = new Chess().fen();
 const chess = new Chess();
 
 let expressApp = express();
@@ -56,15 +60,18 @@ io.on("connection", (socket) => {
       return;
     }
     socket.join(roomId);
+    globalThis.roomFen.set(roomId, START_FEN);
 
     if (io.sockets.adapter.rooms.get(roomId).size === 2)
-      io.to(roomId).emit(
-        "start",
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
-        socket.id
-      );
+      io.to(roomId).emit("start", START_FEN, socket.id);
 
     callback("answer");
+  });
+
+  socket.on("leave", () => {
+    socket.rooms.forEach((roomId) => {
+      if (roomId !== socket.id) socket.leave(roomId);
+    });
   });
 
   socket.on("move", (move, callback) => {

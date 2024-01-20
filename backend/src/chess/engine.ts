@@ -9,6 +9,10 @@ class NormalMove {
     this.square1 = square1;
     this.square2 = square2;
   }
+
+  toString(): string {
+    return `(${this.square1}, ${this.square2})`;
+  }
 }
 
 class PromotionMove extends NormalMove {
@@ -17,12 +21,20 @@ class PromotionMove extends NormalMove {
     super(square1, square2);
     this.piece = piece;
   }
+
+  toString(): string {
+    return `(${this.square1}, ${this.square2}, '${this.piece}')`;
+  }
 }
 
 class InvalidMove {
   prompt: string;
   constructor(prompt: string) {
     this.prompt = prompt;
+  }
+  
+  toString() {
+    return 'Invalid Move'
   }
 }
 

@@ -1,18 +1,21 @@
-import { BlockReason, FinishReason, GoogleGenerativeAI } from "@google/generative-ai";
+import {
+    BlockReason,
+    FinishReason,
+    GenerativeModel,
+    GoogleGenerativeAI,
+} from "@google/generative-ai";
 import { assertNever, assertUnreachable } from "../utils/assertions.js";
 import dotenv from "dotenv";
 import { InvalidMove, Move, NormalMove, PromotionMove } from "./engine.js";
 dotenv.config();
 
-async function displayTokenCount(model, request) {
+async function getTokenCount(
+    model: GenerativeModel,
+    request: string
+): Promise<number> {
     const { totalTokens } = await model.countTokens(request);
     console.log("Token count: ", totalTokens);
-}
-
-async function displayChatTokenCount(model, chat, msg) {
-    const history = await chat.getHistory();
-    const msgContent = { role: "user", parts: [{ text: msg }] };
-    await displayTokenCount(model, { contents: [...history, msgContent] });
+    return totalTokens;
 }
 
 // Access your API key as an environment variable (see "Set up your API key" above)
@@ -50,7 +53,12 @@ export async function llmInterpretPrompt(
             maxOutputTokens: 500,
         },
     });
-
+    
+    if ((await getTokenCount(model, prompt)) > 1000) {
+        return new InvalidMove(
+            "Blocked Prompt: The prompt was too long. Please try again."
+        );
+    }
     const result = await chat.sendMessage(prompt);
     const response = await result.response;
 

@@ -75,10 +75,12 @@ div.message.outgoing {
 }
 
 div.message > div {
-  width: 75%;
+  max-width: 75%;
   margin-left: 0;
   padding: 10px;
   border-radius: 5px;
+  word-wrap: break-word;
+  text-align: start;
 }
 
 div.message.outgoing > div {

@@ -1,6 +1,10 @@
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:8000");
+const socket = io(
+  window.location.hostname.includes("localhost")
+    ? "http://localhost:8000"
+    : `${window.location.hostname}/api`
+);
 
 socket.on("connect", () => console.log("Connected to socket.io server"));
 
@@ -16,16 +20,22 @@ export async function joinRoom(roomId: string) {
   return response as boolean;
 }
 
-export function move(move: string) {
-  socket.emit("move", move);
+export async function move(move: string) {
+  return (await socket.emitWithAck("move", move)) as string;
 }
 
 export function onGameStart(callback: (fen: string, isWhite: boolean) => void) {
-  socket.on("start", (fen, whiteSocketId) =>
-    callback(fen, socket.id === whiteSocketId)
-  );
+  socket.on("start", (fen, whiteSocketId) => {
+    console.log("Start", whiteSocketId);
+    callback(fen, socket.id === whiteSocketId);
+  });
 }
 
-export function onUpdate(callback: (fen: string, lastMove: string) => void) {
-  socket.on("update", callback);
+export function onUpdate(
+  callback: (fen: string, isTurn: boolean, lastMove: string) => void
+) {
+  socket.on("update", (fen, lastMovedUser, lastMove) => {
+    console.log("Update", fen, lastMovedUser !== socket.id, lastMove);
+    callback(fen, lastMovedUser !== socket.id, lastMove);
+  });
 }

@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 import { Server } from "socket.io";
 import { Chess } from "chess.js";
 import "./utils/globals.js";
-import { FailedMove, interpretMove } from "./chess/engine.js";
+import { FailedMove, SuccessfulMove, interpretMove } from "./chess/engine.js";
 import { assertUnreachable } from "./utils/assertions.js";
 import stockfish from "stockfish";
 
@@ -146,10 +146,10 @@ io.on("connection", (socket) => {
     const res = await interpretMove(move, globalThis.roomFen.get(roomId));
     if (res instanceof FailedMove) {
       callback(res.error);
-    } else if (typeof res === "string") {
-      io.to(roomId).emit("update", res, socket.id, move);
-      globalThis.roomFen.set(roomId, res);
-      callback(res);
+    } else if (res instanceof SuccessfulMove) {
+      io.to(roomId).emit("update", res.fen, socket.id, move);
+      globalThis.roomFen.set(roomId, res.fen);
+      callback(res.move.toString());
 
       if (roomId === "ai") {
         fetch("http://localhost:8080/stockfish", {

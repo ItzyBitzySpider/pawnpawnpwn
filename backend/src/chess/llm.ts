@@ -7,6 +7,7 @@ import {
 import { assertNever, assertUnreachable } from "../utils/assertions.js";
 import dotenv from "dotenv";
 import { InvalidMove, Move, NormalMove, PromotionMove } from "./engine.js";
+import { Square } from "chess.js";
 dotenv.config();
 
 async function getTokenCount(
@@ -84,7 +85,7 @@ export async function llmInterpretPrompt(
         if (safe) {
             return parsed;
         } else {
-            return new InvalidMove(`Illegal Move: ${text}`);
+            return new InvalidMove(`Illegal Move detected: ${parsed}`);
         }
     } else {
         assertUnreachable(parsed);
@@ -120,7 +121,7 @@ async function llmCheckMoveValidity(
     });
 
     const result = await chat.sendMessage(
-        `The current game state is provided by the following FEN: ${fen}. The move to be made is ${prompt.toString()}`
+        `The current game state is provided by the following FEN: ${fen}. The move to be made is ${prompt.format()}`
     );
 
     const response = await result.response;
@@ -136,24 +137,24 @@ async function llmCheckMoveValidity(
 
 function parseResponseMove(response: string): Move {
     // check if response is in the format (square, square)
-    const moveRegex = /\(\'?([abcdefgh]\d)\'?,\s?\'?([abcdefgh]\d)\'?\)/;
+    const moveRegex = /.*([abcdefgh]\d).*([abcdefgh]\d).*/;
     const moveMatch = response.match(moveRegex);
     if (moveMatch) {
         const [_, square1, square2] = moveMatch;
-        return new NormalMove(square1, square2);
+        return new NormalMove(square1 as Square, square2 as Square);
     }
 
     // check if response is in the format (square, square)
     const promotionRegex =
-        /\('?([abcdefgh]\d)'?,\s?'?([abcdefgh]\d)'?,\s?'?([qrbn])'?\)/;
+        /.*([abcdefgh]\d).*([abcdefgh]\d).*([qrbn]).*/;
     const promotionMatch = response.match(promotionRegex);
     if (promotionMatch) {
         const [_, square1, square2, piece] = promotionMatch;
-        if (piece === "q" || piece === "r" || piece === "b" || piece === "n") {
-            return new PromotionMove(square1, square2, piece);
-        } else {
-            assertNever();
-        }
+        return new PromotionMove(
+            square1 as Square,
+            square2 as Square,
+            piece as "q" | "r" | "b" | "n"
+        );
     }
-    return new InvalidMove(`Invalid Response: ${response}`);
+    return new InvalidMove(`Prompt generated a response that could not be parsed: ${response}`);
 }

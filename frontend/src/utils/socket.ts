@@ -41,3 +41,7 @@ export function onUpdate(
     callback(fen, lastMovedUser !== socket.id, lastMove);
   });
 }
+
+export function onGameover(callback: (message: string) => void) {
+  socket.on("gameover", callback);
+}

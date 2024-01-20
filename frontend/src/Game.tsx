@@ -1,16 +1,9 @@
-import {
-  Button,
-  Container,
-  Grid,
-  Icon,
-  Input,
-  Loader,
-} from "semantic-ui-react";
+import { Button, Container, Grid, Icon, Input } from "semantic-ui-react";
 import { Chessboard } from "react-chessboard";
 import "./Game.css";
 import { Message } from "./types/message";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { move, onUpdate } from "./utils/socket";
+import { move, onGameover, onUpdate } from "./utils/socket";
 
 export default function Game({
   fen,
@@ -25,6 +18,7 @@ export default function Game({
   const [text, setText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setLoading] = useState(false);
+  const [gameover, setGameover] = useState(false);
 
   // const messages: Message[] = [
   //   { outgoing: true, text: "Knight to E5" },
@@ -50,6 +44,10 @@ export default function Game({
         setMessages((msgs) =>
           msgs.concat({ outgoing: false, text: "Your turn!" })
         );
+    });
+    onGameover((text) => {
+      setMessages((msgs) => msgs.concat({ outgoing: false, text }));
+      setGameover(true);
     });
   }, []);
 
@@ -127,7 +125,7 @@ export default function Game({
                   ? "Enter move"
                   : "Waiting for opponent..."
               }
-              disabled={!isTurn || isLoading}
+              disabled={!isTurn || isLoading || gameover}
             />
           </Container>
         </div>

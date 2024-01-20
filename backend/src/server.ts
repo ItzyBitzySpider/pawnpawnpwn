@@ -2,7 +2,7 @@ import { createServer } from "http";
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
-import { generateRoomCode } from "./utils/calc.js";
+import { generateRoomCode, processGameover } from "./utils/calc.js";
 import dotenv from "dotenv";
 import { Server } from "socket.io";
 import { Chess } from "chess.js";
@@ -17,7 +17,8 @@ globalThis.roomFen = new Map();
 
 const ENVIRONMENT = process.env.ENV || "dev";
 
-const START_FEN = new Chess().fen();
+const START_FEN =
+  "rnbqkbnr/ppppp2p/5p2/6p1/8/4P1P1/PPPP1P1P/RNBQKBNR w KQkq g6 0 3"; //new Chess().fen();
 
 const engine = stockfish();
 engine.onmessage = function (msg) {
@@ -49,7 +50,6 @@ expressApp.get("/health-check", (req, res) => {
 });
 
 expressApp.post("/stockfish", async (req, res) => {
-  console.log(req.body);
   console.log("QUERY", req.body.fen);
   // if chess engine replies
   engine.onmessage = function (msg) {
@@ -147,9 +147,16 @@ io.on("connection", (socket) => {
     if (res instanceof FailedMove) {
       callback(res.error);
     } else if (typeof res === "string") {
-      io.to(roomId).emit("update", res, socket.id, move);
+      io.to(roomId === "ai" ? socket.id : roomId).emit(
+        "update",
+        res,
+        socket.id,
+        move
+      );
       globalThis.roomFen.set(roomId, res);
       callback(res);
+
+      processGameover(new Chess(res), io, roomId === "ai" ? socket.id : roomId);
 
       if (roomId === "ai") {
         fetch("http://localhost:8080/stockfish", {
@@ -165,6 +172,8 @@ io.on("connection", (socket) => {
             chess.move(res);
             io.to(socket.id).emit("update", chess.fen(), "ai", res);
             globalThis.roomFen.set(socket.id, chess.fen());
+
+            processGameover(chess, io, socket.id);
           })
         );
       }

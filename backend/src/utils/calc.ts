@@ -1,3 +1,6 @@
+import { Chess } from "chess.js";
+import { Server } from "socket.io";
+
 // Generate a random 6-letter room code
 export function generateRoomCode() {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -8,4 +11,14 @@ export function generateRoomCode() {
     );
   }
   return roomCode;
+}
+
+export function processGameover(chess: Chess, io: Server, roomId: string) {
+  if (chess.isGameOver()) io.to(roomId).emit("gameover", getWinner(chess));
+}
+
+function getWinner(chess: Chess) {
+  if (chess.isCheckmate())
+    return chess.turn() === "b" ? "White wins!" : "Black wins!";
+  else return "Draw!";
 }

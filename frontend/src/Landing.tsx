@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Grid, Header, Icon, Input } from "semantic-ui-react";
 import { createRoom, joinRoom, resetRoom } from "./utils/socket";
-import imgUrl from "./assets/logo.svg"
+import imgUrl from "./assets/logo.svg";
 
 export default function Landing({
   confirmedRoomCodeState,
@@ -32,35 +32,43 @@ export default function Landing({
   return (
     <Grid columns={1} textAlign="center">
       <Grid.Row>
-        <Header size="huge"><img src={imgUrl} style={{ width: "300px" }}></img></Header>
+        <Header size="huge">
+          <img src={imgUrl} style={{ width: "300px" }}></img>
+        </Header>
       </Grid.Row>
       {confirmedRoomCode ? (
         <>
           <Grid.Row>
-            <Header>
-              Waiting for opponent...
-              <br />
-              Room Code: {confirmedRoomCode}
-            </Header>
+            <Grid.Column>
+              <Header
+                size="tiny"
+                style={{ margin: 0, fontWeight: "bold", color: "#CCCCCC" }}
+              >
+                Room Code
+              </Header>
+              <Header size="medium" style={{ margin: 0 }}>
+                {confirmedRoomCode}
+              </Header>
+            </Grid.Column>
           </Grid.Row>
           <Grid.Row>
             <Button
-              primary
+              secondary
               onClick={() => {
                 setConfirmedRoomCode("");
                 setRoomCode("");
                 resetRoom();
               }}
             >
-              Back to Home
+              Back
             </Button>
           </Grid.Row>
         </>
       ) : (
         <>
-          <Grid.Row>
+          <Grid.Row style={{ padding: "0.5rem" }}>
             <Button
-              primary
+              secondary
               onClick={() => {
                 setConfirmedRoomCode("ai");
                 joinRoom("ai");
@@ -69,17 +77,17 @@ export default function Landing({
               Play Stockfish
             </Button>
           </Grid.Row>
-          <Grid.Row>
+          <Grid.Row style={{ padding: "0.5rem" }}>
             <Button
-              primary
+              secondary
               onClick={async () => {
                 setConfirmedRoomCode(await createRoom());
               }}
             >
-              Create Multiplayer Game
+              Create Game
             </Button>
           </Grid.Row>
-          <Grid.Row>
+          <Grid.Row style={{ padding: "0.5rem" }}>
             {isChoosingState ? (
               <Input
                 maxLength="6"
@@ -90,7 +98,7 @@ export default function Landing({
                   if (event.key === "Enter") requestJoin();
                 }}
                 action={
-                  <Button primary onMouseDown={requestJoin}>
+                  <Button secondary onMouseDown={requestJoin}>
                     <Icon name="sign-in" />
                   </Button>
                 }
@@ -104,8 +112,8 @@ export default function Landing({
                 }}
               ></Input>
             ) : (
-              <Button onClick={() => setIsChoosingState(true)} primary>
-                Join Multiplayer Game
+              <Button onClick={() => setIsChoosingState(true)} secondary>
+                Join Game
               </Button>
             )}
           </Grid.Row>

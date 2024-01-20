@@ -4,19 +4,19 @@
 
 @defaultBorderRadius: 5px;
 
-@headerFont: "Roboto", "Helvetica Neue", Arial, Helvetica, sans-serif;
-@pageFont: "Roboto", "Helvetica Neue", Arial, Helvetica, sans-serif;
+@headerFont: "Montserrat", "Roboto", "Helvetica Neue", Arial, Helvetica, sans-serif;
+@pageFont: "Montserrat", "Roboto", "Helvetica Neue", Arial, Helvetica, sans-serif;
 @googleFontName: "Roboto";
 
 @pageBackground: #252422;
 @primaryColor: #df7353;
-@secondaryColor: #ccc5b9;
+@secondaryColor: #ac4020;
 
 @lineHeight: 1.33;
 @textColor: #fffcf2;
 
 @black: #000000;
-@grey: #4c4843;
+@grey: #909090;
 @red: #ac4020;
 
 @fontSize: 1.25rem;

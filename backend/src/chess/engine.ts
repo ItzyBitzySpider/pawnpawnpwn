@@ -53,8 +53,7 @@ const chess = new Chess();
 function movePiece(square1, square2): string | FailedMove {
   const piece = chess.remove(square1);
   if (!piece) {
-    console.log(piece);
-    return null;
+    return new FailedMove(`No piece found at ${square1}`);
   }
   chess.put(piece, square2);
   const validate = validateFen(chess.fen());
@@ -69,8 +68,7 @@ function movePiece(square1, square2): string | FailedMove {
 function promotePiece(square1, square2, piece): string | FailedMove {
   const pawn = chess.remove(square1);
   if (!pawn) {
-    console.log(pawn);
-    return null;
+    return new FailedMove(`No piece found at ${square1}`);
   }
   chess.put({ type: piece, color: pawn.color }, square2);
   const validate = validateFen(chess.fen());
@@ -88,12 +86,16 @@ export async function interpretMove(
 ): Promise<string | FailedMove> {
   const move = await llmInterpretPrompt(prompt, fen);
   if (move instanceof NormalMove) {
+    console.log('return normal move')
     return movePiece(move.square1, move.square2);
   } else if (move instanceof PromotionMove) {
+    console.log('return promotion move')
     return promotePiece(move.square1, move.square2, move.piece);
   } else if (move instanceof InvalidMove) {
+    console.log('return failed move')
     return new FailedMove(move.prompt);
   } else {
+    console.log('return unreachable')
     assertUnreachable(move);
   }
 }

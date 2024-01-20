@@ -178,7 +178,12 @@ io.on("connection", (socket) => {
             const chess = new Chess(globalThis.roomFen.get(socket.id));
             console.log(globalThis.roomFen.get(socket.id));
             chess.move(res);
-            io.to(socket.id).emit("update", chess.fen(), "ai", res);
+            io.to(socket.id).emit(
+              "update",
+              chess.fen(),
+              "ai",
+              `Stockfish Move: ${res}`
+            );
             globalThis.roomFen.set(socket.id, chess.fen());
 
             processGameover(chess, io, socket.id);

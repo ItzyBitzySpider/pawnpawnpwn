@@ -1,6 +1,5 @@
-import { BlockReason, GoogleGenerativeAI } from "@google/generative-ai";
-import { Piece } from "chess.js";
-import { assertUnreachable, assertNever } from "../utils/assertions.js";
+import { BlockReason, FinishReason, GoogleGenerativeAI } from "@google/generative-ai";
+import { assertNever, assertUnreachable } from "../utils/assertions.js";
 import dotenv from "dotenv";
 import { InvalidMove, Move, NormalMove, PromotionMove } from "./engine.js";
 dotenv.config();
@@ -18,7 +17,6 @@ async function displayChatTokenCount(model, chat, msg) {
 
 // Access your API key as an environment variable (see "Set up your API key" above)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
-const FEN = "rnbqkb1r/1p2ppp1/3p4/p2n3p/3P4/3B1N2/PPP2PPP/RNBQK2R w KQkq - 0 7";
 
 export async function llmInterpretPrompt(
     prompt: string,
@@ -56,13 +54,13 @@ export async function llmInterpretPrompt(
     const result = await chat.sendMessage(prompt);
     const response = await result.response;
 
-    if (
-        response.promptFeedback &&
-        response.promptFeedback.blockReason !==
-            BlockReason.BLOCKED_REASON_UNSPECIFIED
-    ) {
+    if (response.candidates[0].finishReason === FinishReason.MAX_TOKENS) {
         return new InvalidMove(
-            "Blocked Prompt: " + response.promptFeedback.blockReasonMessage
+            "Blocked Prompt: The response returned was too long. Please try again."
+        );
+    } else if (response.candidates[0].finishReason === FinishReason.SAFETY) {
+        return new InvalidMove(
+            "Blocked Prompt: The prompt was flagged as harmful. Please try again."
         );
     }
 
@@ -70,13 +68,18 @@ export async function llmInterpretPrompt(
     const parsed = parseResponseMove(text);
     if (parsed instanceof InvalidMove) {
         return parsed;
-    }
-    const safe = await llmCheckMoveValidity(parsed, fen);
-    console.log(parseResponseMove(text), safe);
-    if (safe) {
-        return parseResponseMove(text);
+    } else if (
+        parsed instanceof PromotionMove ||
+        parsed instanceof NormalMove
+    ) {
+        const safe = await llmCheckMoveValidity(parsed, fen);
+        if (safe) {
+            return parsed;
+        } else {
+            return new InvalidMove(`Illegal Move: ${text}`);
+        }
     } else {
-        return new InvalidMove(`Illegal Move: ${text}`);
+        assertUnreachable(parsed);
     }
 }
 
@@ -113,11 +116,9 @@ async function llmCheckMoveValidity(
     );
 
     const response = await result.response;
-    if (
-        response.promptFeedback &&
-        response.promptFeedback.blockReason !==
-            BlockReason.BLOCKED_REASON_UNSPECIFIED
-    ) {
+    if (response.candidates[0].finishReason === FinishReason.MAX_TOKENS) {
+        return false;
+    } else if (response.candidates[0].finishReason === FinishReason.SAFETY) {
         return false;
     }
 

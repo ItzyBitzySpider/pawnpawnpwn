@@ -40,7 +40,7 @@
     "start:watch": "./node_modules/nodemon/bin/nodemon.js build/server.js",
     "client-connect": "node test/client-connect.js",
     "llm": "node test/llm.js",
-    "chess": "node test/chess.js"
+    "chess": "node test/illegalChess.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.5",

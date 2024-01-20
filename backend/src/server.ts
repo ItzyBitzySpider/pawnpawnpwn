@@ -1,61 +1,65 @@
 import { createServer } from "http";
-import eetase from "eetase";
-import socketClusterServer from "socketcluster-server";
 import express from "express";
-import serveStatic from "serve-static";
-import path from "path";
 import morgan from "morgan";
+import cors from "cors";
 import { generateRoomCode } from "./utils/calc.js";
-import { debugServerLogs } from "./utils/debug.js";
 import "dotenv";
+import { Server } from "socket.io";
 
 const ENVIRONMENT = process.env.ENV || "dev";
-const SOCKETCLUSTER_PORT = process.env.SOCKETCLUSTER_PORT || 8000;
 
-let agOptions = {};
-
-if (process.env.SOCKETCLUSTER_OPTIONS) {
-    let envOptions = JSON.parse(process.env.SOCKETCLUSTER_OPTIONS);
-    Object.assign(agOptions, envOptions);
-}
-
-let httpServer = eetase(createServer());
+let httpServer = createServer();
+const io = new Server(httpServer, { serveClient: false });
 
 let expressApp = express();
 if (ENVIRONMENT === "dev") {
-    expressApp.use(morgan("dev"));
+  expressApp.use(morgan("dev"));
+  expressApp.use(cors());
 }
 
 // Add GET /health-check express route
 expressApp.get("/health-check", (req, res) => {
-    res.status(200).send("OK");
+  res.status(200).send("OK");
 });
 
-// create-room express route
-expressApp.get("/create-room", (req, res) => {
-    const roomCode = generateRoomCode();
-    console.log(roomCode);
-    let agServer = socketClusterServer.attach(httpServer, {
-        path: "/socketcluster/" + roomCode,
-    });
+io.on("connection", (socket) => {
+  console.log(`${socket.id} connected`);
 
-    // SocketCluster/WebSocket connection handling loop.
-    (async () => {
-        for await (let { socket } of agServer.listener("connection")) {
-            console.log(socket.id + " connected to room " + roomCode);
-        }
-    })();
+  socket.on("ping", (data, ack) => {
+    const startTime = Date.now();
+    ack({ data: "pong", timestamp: data.timestamp });
+  });
 
-    debugServerLogs(2, agServer);
+  socket.on("create", (callback) => {
+    const roomId = generateRoomCode();
+    console.log(socket.id, "create:", roomId);
+    socket.join(roomId);
+    callback(roomId);
+  });
 
-    res.status(200).json({ roomCode });
-});
-
-// HTTP request handling loop.
-(async () => {
-    for await (let requestData of httpServer.listener("request")) {
-        expressApp.apply(null, requestData);
+  socket.on("join", (roomId, callback) => {
+    console.log(socket.id, "join:", roomId);
+    if (!io.sockets.adapter.rooms.has(roomId)) {
+      callback(false);
+      return;
     }
-})();
+    socket.join(roomId);
 
-httpServer.listen(SOCKETCLUSTER_PORT);
+    if (io.sockets.adapter.rooms.get(roomId).size === 2)
+      io.to(roomId).emit("start", global.rooms[roomId].players.size);
+
+    callback(true);
+  });
+
+  socket.on("move", (move) => {});
+
+  socket.on("disconnecting", () => {
+    console.log(`${socket.id} disconnecting`);
+  });
+
+  socket.on("disconnected", () => {
+    console.log(`${socket.id} disconnected`);
+  });
+});
+
+httpServer.listen(8000);

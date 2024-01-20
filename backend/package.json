@@ -10,6 +10,7 @@
     }
   ],
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.3.2",
     "eetase": "^7.0.0",
     "express": "^4.16.3",
@@ -17,6 +18,7 @@
     "nodemon": "^2.0.22",
     "scc-broker-client": "^9.2.0",
     "serve-static": "^1.13.2",
+    "socket.io": "^4.7.4",
     "socketcluster-client": "^19.1.0",
     "socketcluster-server": "^19.0.1",
     "uuid": "^9.0.1"
@@ -38,6 +40,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.5",
+    "socket.io-client": "^4.7.4",
     "typescript": "^5.3.3"
   }
 }

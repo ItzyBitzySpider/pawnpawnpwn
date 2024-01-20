@@ -46,12 +46,27 @@ io.on("connection", (socket) => {
     socket.join(roomId);
 
     if (io.sockets.adapter.rooms.get(roomId).size === 2)
-      io.to(roomId).emit("start", global.rooms[roomId].players.size);
+      io.to(roomId).emit(
+        "start",
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+        socket.id
+      );
 
     callback(true);
   });
 
-  socket.on("move", (move) => {});
+  socket.on("move", (move) => {
+    console.log(socket.id, move);
+    socket.rooms.forEach((roomId) =>
+      io
+        .to(roomId)
+        .emit(
+          "update",
+          "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          socket.id
+        )
+    );
+  });
 
   socket.on("disconnecting", () => {
     console.log(`${socket.id} disconnecting`);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import Landing from "./Landing";
 import Game from "./Game";
@@ -11,17 +11,18 @@ function App() {
   const [isTurn, setIsTurn] = useState(false);
   const [isWhite, setIsWhite] = useState(false);
 
-  onGameStart((fen, isWhite) => {
-    setFen(fen);
-    setIsWhite(isWhite);
-    setIsTurn(isWhite);
-    setGameStarted(true);
-  });
-  onUpdate((fen, isTurn, lastMove) => {
-    setFen(fen);
-    setIsTurn(isTurn);
-  });
-
+  useEffect(() => {
+    onGameStart((fen, isWhite) => {
+      setFen(fen);
+      setIsWhite(isWhite);
+      setIsTurn(isWhite);
+      setGameStarted(true);
+    });
+    onUpdate((fen, isTurn) => {
+      setFen(fen);
+      setIsTurn(isTurn);
+    });
+  }, []);
   return (
     <>
       {gameStarted ? (

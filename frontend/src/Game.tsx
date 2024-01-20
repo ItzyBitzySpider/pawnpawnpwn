@@ -1,8 +1,16 @@
-import { Button, Container, Grid, Icon, Input } from "semantic-ui-react";
+import {
+  Button,
+  Container,
+  Grid,
+  Icon,
+  Input,
+  Loader,
+} from "semantic-ui-react";
 import { Chessboard } from "react-chessboard";
 import "./Game.css";
 import { Message } from "./types/message";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { move, onUpdate } from "./utils/socket";
 
 export default function Game({
   fen,
@@ -15,6 +23,7 @@ export default function Game({
 }) {
   const [text, setText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setLoading] = useState(false);
 
   // const messages: Message[] = [
   //   { outgoing: true, text: "Knight to E5" },
@@ -33,9 +42,21 @@ export default function Game({
   //   { outgoing: false, text: "Move not allowed! Try again!" },
   // ];
 
+  useEffect(() => {
+    onUpdate((_, isTurn, lastMove) => {
+      if (isTurn)
+        setMessages((msgs) => msgs.concat({ outgoing: false, text: lastMove }));
+    });
+  }, []);
+
   const sendMessage = useCallback(() => {
     if (text.trim().length === 0) return;
-    setMessages((msgs) => [...msgs, { outgoing: true, text }]);
+    setMessages((msgs) => msgs.concat({ outgoing: true, text }));
+    setLoading(true);
+    move(text).then((res) => {
+      setLoading(false);
+      setMessages((msgs) => msgs.concat({ outgoing: false, text: res }));
+    });
     setText("");
   }, [text]);
 
@@ -81,11 +102,22 @@ export default function Game({
               value={text}
               onChange={(t) => setText(t.target.value)}
               action={
-                <Button primary onClick={sendMessage}>
-                  <Icon name="send" />
+                <Button
+                  primary
+                  onClick={sendMessage}
+                  style={{ padding: "0.78571429em 1em 0.78571429em" }}
+                >
+                  <Icon name="send" style={{ marginRight: 0 }} />
                 </Button>
               }
-              disabled={!isTurn}
+              placeholder={
+                isLoading
+                  ? "Processing..."
+                  : isTurn
+                  ? "Enter move"
+                  : "Waiting for opponent..."
+              }
+              disabled={!isTurn || isLoading}
             />
           </Container>
         </div>

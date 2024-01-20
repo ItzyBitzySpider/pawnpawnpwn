@@ -3,12 +3,28 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import { generateRoomCode } from "./utils/calc.js";
-import "dotenv";
+import dotenv from "dotenv";
 import { Server } from "socket.io";
+import { Chess } from "chess.js";
+import "./utils/globals.js";
+
+dotenv.config();
+
+globalThis.roomFen = new Map();
 
 const ENVIRONMENT = process.env.ENV || "dev";
 
-let httpServer = createServer();
+const START_FEN = new Chess().fen();
+const chess = new Chess();
+
+let expressApp = express();
+if (ENVIRONMENT === "dev") {
+  expressApp.use(morgan("dev"));
+  expressApp.use(cors());
+}
+
+let httpServer = createServer(expressApp);
+
 const io = new Server(httpServer, {
   serveClient: false,
   cors:
@@ -16,12 +32,6 @@ const io = new Server(httpServer, {
       ? { origin: "*", methods: ["GET", "POST"] }
       : undefined,
 });
-
-let expressApp = express();
-if (ENVIRONMENT === "dev") {
-  expressApp.use(morgan("dev"));
-  expressApp.use(cors());
-}
 
 // Add GET /health-check express route
 expressApp.get("/health-check", (req, res) => {
@@ -46,31 +56,43 @@ io.on("connection", (socket) => {
   socket.on("join", (roomId, callback) => {
     console.log(socket.id, "join:", roomId);
     if (!io.sockets.adapter.rooms.has(roomId)) {
-      callback(false);
+      callback("denied");
       return;
     }
     socket.join(roomId);
+    globalThis.roomFen.set(roomId, START_FEN);
 
     if (io.sockets.adapter.rooms.get(roomId).size === 2)
-      io.to(roomId).emit(
-        "start",
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
-        socket.id
-      );
+      io.to(roomId).emit("start", START_FEN, socket.id);
 
-    callback(true);
+    callback("answer");
   });
 
-  socket.on("move", (move) => {
+  socket.on("leave", () => {
+    socket.rooms.forEach((roomId) => {
+      if (roomId !== socket.id) socket.leave(roomId);
+    });
+  });
+
+  socket.on("move", (move, callback) => {
     console.log(socket.id, move);
-    socket.rooms.forEach((roomId) =>
-      io.to(roomId).emit(
-        "update",
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        socket.id,
-        null //TODO winner
-      )
-    );
+    const allowed = Math.random() < 0.7; //TODO LLM
+
+    //TODO remove artificial delay
+    setTimeout(() => {
+      if (allowed) {
+        //TODO execute parsed move from LLM
+        const availableMoves = chess.moves();
+        chess.move(
+          availableMoves[Math.floor(Math.random() * availableMoves.length)]
+        );
+        socket.rooms.forEach((roomId) => {
+          if (roomId !== socket.id)
+            io.to(roomId).emit("update", chess.fen(), socket.id, move);
+        });
+        callback("Allowed " + move);
+      } else callback("Denied");
+    }, 1000);
   });
 
   socket.on("disconnecting", () => {
@@ -82,4 +104,4 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(8000);
+httpServer.listen(8080);

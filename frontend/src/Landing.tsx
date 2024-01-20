@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Grid, Header, Icon, Input } from "semantic-ui-react";
-import { createRoom, joinRoom } from "./utils/socket";
+import { createRoom, joinRoom, resetRoom } from "./utils/socket";
 
 export default function Landing({
   confirmedRoomCodeState,
@@ -48,6 +48,7 @@ export default function Landing({
               onClick={() => {
                 setConfirmedRoomCode("");
                 setRoomCode("");
+                resetRoom();
               }}
             >
               Back to Home

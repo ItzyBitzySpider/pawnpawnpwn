@@ -1,0 +1,7 @@
+/*******************************
+         Site Overrides
+*******************************/
+
+div.ui.action.input:not([class*="left action"]) > input {
+  border-right-color: @primaryColor !important;
+}

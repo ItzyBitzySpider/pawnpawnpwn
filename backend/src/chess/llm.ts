@@ -107,7 +107,7 @@ async function llmCheckMoveValidity(
         history: [
             {
                 role: "user",
-                parts: `Assume the role of an Next Generation Chess Interpreter. Using the FEN and next move you are to determine whether the next move is legal. The move can be one of the following formats:\n1. (<square>, <square>), to move a piece from the first square to the second square. For example, (e2, e4) moves the piece at e2 to e4.\n2. (<square>, <square>, <piece>), to promote a pawn to a piece. For example, (e7, e8, q), promotes the pawn at e7 to a queen. The piece can be a 'q' (queen), 'r' (rook), 'b' (bishop), or 'n' (knight).\nIf the move is legal, respond with 'True'. If the move is illegal, respond with 'False'. You should only have either 'True' or 'False' in your response.\nIf you understand, respond with 'Yes, I understand'.`,
+                parts: `Assume the role of an Next Generation Chess Interpreter. Using the FEN and next move you are to determine whether the next move is legal. The move can be one of the following formats:\n1. (<square>, <square>), to move a piece from the first square to the second square. For example, (e2, e4) moves the piece at e2 to e4.\n2. (<square>, <square>, <piece>), to promote a pawn to a piece. For example, (e2, e1, q), promotes the pawn at e7 to a queen. The piece can be a 'q' (queen), 'r' (rook), 'b' (bishop), or 'n' (knight).\nIf the move is legal, respond with 'True'. If the move is illegal, respond with 'False'. You should only have either 'True' or 'False' in your response.\nIf you understand, respond with 'Yes, I understand'.`,
             },
             {
                 role: "model",
@@ -135,7 +135,19 @@ async function llmCheckMoveValidity(
 }
 
 function parseResponseMove(response: string): Move {
-    // check if response is in the format (square, square)
+     // check if response is in the format (square, square)
+     const promotionRegex = /.*([abcdefgh]\d).*([abcdefgh]\d).*([qrbn]).*/;
+     const promotionMatch = response.match(promotionRegex);
+     if (promotionRegex.test(response)) {
+         const [_, square1, square2, piece] = promotionMatch;
+         return new PromotionMove(
+             square1 as Square,
+             square2 as Square,
+             piece as "q" | "r" | "b" | "n"
+         );
+     }
+     
+     // check if response is in the format (square, square)
     const moveRegex = /.*([abcdefgh]\d).*([abcdefgh]\d).*/;
     const moveMatch = response.match(moveRegex);
     if (moveMatch) {
@@ -143,17 +155,7 @@ function parseResponseMove(response: string): Move {
         return new NormalMove(square1 as Square, square2 as Square);
     }
 
-    // check if response is in the format (square, square)
-    const promotionRegex = /.*([abcdefgh]\d).*([abcdefgh]\d).*([qrbn]).*/;
-    const promotionMatch = response.match(promotionRegex);
-    if (promotionMatch) {
-        const [_, square1, square2, piece] = promotionMatch;
-        return new PromotionMove(
-            square1 as Square,
-            square2 as Square,
-            piece as "q" | "r" | "b" | "n"
-        );
-    }
+   
     return new InvalidMove(
         `Prompt generated a response that could not be parsed: ${response}`
     );

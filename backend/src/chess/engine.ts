@@ -112,12 +112,12 @@ export async function interpretMove(
   fen: string
 ): Promise<SuccessfulMove | FailedMove> {
   const move = await llmInterpretPrompt(prompt, fen);
-  if (move instanceof NormalMove) {
-    console.log('return normal move')
-    return movePiece(move, fen);
-  } else if (move instanceof PromotionMove) {
+  if (move instanceof PromotionMove) {
     console.log('return promotion move')
     return promotePiece(move, fen);
+  } else if (move instanceof NormalMove) {
+    console.log('return normal move')
+    return movePiece(move, fen);
   } else if (move instanceof InvalidMove) {
     console.log('return failed move')
     return new FailedMove(move.prompt);
